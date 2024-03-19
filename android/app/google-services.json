@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1014313419829",
+    "project_id": "push-note-3",
+    "storage_bucket": "push-note-3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1014313419829:android:12857180becb921fc9dd7c",
+        "android_client_info": {
+          "package_name": "com.note_fic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2D52t9LvH1mwHHWW2mMYHyyg9_vuTY-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
