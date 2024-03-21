@@ -1,67 +1,72 @@
-import {useEffect} from 'react';
-import {Text, View, SafeAreaView, Alert} from 'react-native';
+import {useEffect, useState} from 'react';
+import {Text, SafeAreaView, Alert} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import PushNotification, {Importance} from 'react-native-push-notification';
+import {requestUserPermission} from './notificationHelper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
+  // const [token, setToken] = useState('');
+  // useEffect(() => {
+  //   (async () => {
+  //     await requestUserPermission();
+  //     await getFcmToken();
+  //   })();
+  // }, []);
+  // console.log(token);
+  // const getFcmToken = async () => {
+  //   const token = await AsyncStorage.getItem('fcmToken');
+  //   if (token) {
+  //     setToken(token);
+  //   }
+  // };
   useEffect(() => {
+    // Request permissions and get the token:
     checkToken();
+
+    // Create the notification channel:
+    createNotificationChannel();
+
+    // Subscribe to incoming messages:
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
 
-      console.log('full message', remoteMessage);
-      PushNotification.channelExists('channel-id', exists => {
-        if (!exists) {
-          PushNotification.createChannel(
-            {
-              channelId: 'channel-id',
-              channelName: 'My channel',
-              channelDescription: 'A channel to categorize your notifications',
-              playSound: true,
-              soundName: 'default',
-              importance: Importance.HIGH,
-              vibrate: true,
-            },
-            created => console.log(`createChannel returned '${created}'`),
-          );
-        }
-      });
-
+      // Trigger a local notification:
       PushNotification.localNotification({
         channelId: 'channel-id',
-        title: remoteMessage?.notification?.title,
-        message: remoteMessage?.notification?.body,
-        playSound: true,
-        soundName: 'default',
-      });
-
-      PushNotification.createChannel(
-        {
-          channelId: 'channel-id', // (required)
-          channelName: 'My channel', // (required)
-          channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-          playSound: true, // (optional) default: true
-          soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-          importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-          vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-        },
-        created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-      );
-      PushNotification.localNotification({
-        channelId: 'channel-id',
-        title: remoteMessage?.notification?.title,
-        message: remoteMessage?.notification?.body,
+        title: remoteMessage.notification.title,
+        message: remoteMessage.notification.body,
         playSound: true,
         soundName: 'default',
       });
     });
 
+    // Cleanup subscription on unmount:
     return unsubscribe;
   }, []);
 
   const checkToken = async () => {
     const fcmToken = await messaging().getToken();
-    console.log('fcm token', fcmToken);
+    console.log('FCM Token:', fcmToken);
+  };
+
+  const createNotificationChannel = () => {
+    PushNotification.channelExists('channel-id', exists => {
+      if (!exists) {
+        PushNotification.createChannel(
+          {
+            channelId: 'channel-id',
+            channelName: 'My channel',
+            channelDescription: 'A channel to categorize your notifications',
+            playSound: true,
+            soundName: 'default',
+            importance: Importance.HIGH,
+            vibrate: true,
+          },
+          created => console.log(`createChannel returned '${created}'`),
+        );
+      }
+    });
   };
 
   return (
